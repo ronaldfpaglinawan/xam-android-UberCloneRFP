@@ -13,14 +13,20 @@ using Android.Widget;
 
 namespace UberCloneRFP.Activities
 {
-    [Activity(Label = "@string/app_name", Theme = "@style/UberTheme", MainLauncher = false)]
-    public class RegistrationActivity : AppCompatActivity
+    [Activity(Label = "@string/app_name", Theme = "@style/MyTheme.Splash", MainLauncher = true, NoHistory = true, ScreenOrientation = Android.Content.PM.ScreenOrientation.Portrait)]
+    public class SplashActivity : AppCompatActivity
     {
         protected override void OnCreate(Bundle savedInstanceState)
         {
             base.OnCreate(savedInstanceState);
 
-            SetContentView(Resource.Layout.register);
+            // Create your application here
+        }
+
+        protected override void OnResume()
+        {
+            base.OnResume();
+            StartActivity(typeof(RegistrationActivity));
         }
     }
 }
