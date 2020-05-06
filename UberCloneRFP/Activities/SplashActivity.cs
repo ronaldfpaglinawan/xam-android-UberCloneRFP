@@ -26,7 +26,7 @@ namespace UberCloneRFP.Activities
         protected override void OnResume()
         {
             base.OnResume();
-            StartActivity(typeof(RegistrationActivity));
+            StartActivity(typeof(LoginActivity));
         }
     }
 }
