@@ -16,6 +16,7 @@ using Firebase.Database;
 using Firebase;
 using Android.Gms.Tasks;
 using UberCloneRFP.EventListeners;
+using Java.Util;
 
 namespace UberCloneRFP.Activities
 {
@@ -32,6 +33,7 @@ namespace UberCloneRFP.Activities
         FirebaseAuth mAuth;
         FirebaseDatabase database;
         TaskCompletionListener taskCompletionListener = new TaskCompletionListener();
+        string fullname, phone, email, password;
 
         protected override void OnCreate(Bundle savedInstanceState)
         {
@@ -79,7 +81,6 @@ namespace UberCloneRFP.Activities
 
         private void RegisterButton_Click(object sender, EventArgs e)
         {
-            string fullname, phone, email, password;
 
             fullname = fullNameText.EditText.Text;
             phone = phoneText.EditText.Text;
@@ -127,6 +128,14 @@ namespace UberCloneRFP.Activities
         private void TaskCompletionListener_Success(object sender, EventArgs e)
         {
             Snackbar.Make(rootView, "User registration was successful", Snackbar.LengthShort).Show();
+
+            HashMap userMap = new HashMap();
+            userMap.Put("email", email);
+            userMap.Put("phone", phone);
+            userMap.Put("fullname", fullname);
+
+            DatabaseReference userReference = database.GetReference("users/" + mAuth.CurrentUser.Uid);
+            userReference.SetValue(userMap);
         }
     }
 }
