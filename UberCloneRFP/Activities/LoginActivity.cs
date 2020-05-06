@@ -25,6 +25,7 @@ namespace UberCloneRFP.Activities
         TextInputLayout passwordText;
         Button loginButton;
         CoordinatorLayout rootView;
+        TextView clickToRegisterText;
         FirebaseAuth mAuth;
 
         protected override void OnCreate(Bundle savedInstanceState)
@@ -37,9 +38,17 @@ namespace UberCloneRFP.Activities
             passwordText = (TextInputLayout)FindViewById(Resource.Id.passwordText);
             rootView = (CoordinatorLayout)FindViewById(Resource.Id.rootView);
             loginButton = (Button)FindViewById(Resource.Id.loginButton);
+            clickToRegisterText = (TextView)FindViewById(Resource.Id.clickToRegister);
 
+            clickToRegisterText.Click += ClickToRegisterText_Click;
             loginButton.Click += LoginButton_Click;
             InitialFirebase();
+        }
+
+        private void ClickToRegisterText_Click(object sender, EventArgs e)
+        {
+            StartActivity(typeof(RegistrationActivity));
+            Finish();
         }
 
         private void LoginButton_Click(object sender, EventArgs e)
