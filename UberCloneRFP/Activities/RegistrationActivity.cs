@@ -34,6 +34,8 @@ namespace UberCloneRFP.Activities
         FirebaseDatabase database;
         TaskCompletionListener taskCompletionListener = new TaskCompletionListener();
         string fullname, phone, email, password;
+        ISharedPreferences preferences = Application.Context.GetSharedPreferences("userinfo", FileCreationMode.Private);
+        ISharedPreferencesEditor editor;
 
         protected override void OnCreate(Bundle savedInstanceState)
         {
@@ -136,6 +138,23 @@ namespace UberCloneRFP.Activities
 
             DatabaseReference userReference = database.GetReference("users/" + mAuth.CurrentUser.Uid);
             userReference.SetValue(userMap);
+        }
+
+        void SaveToSharedPreference()
+        {
+            
+            editor = preferences.Edit();
+
+            editor.PutString("email", email);
+            editor.PutString("fullname", fullname);
+            editor.PutString("phone", phone);
+
+            editor.Apply();
+        }
+
+        void RetrieveData()
+        {
+            string email = preferences.GetString("email", "");
         }
     }
 }
