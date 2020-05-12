@@ -12,7 +12,6 @@ namespace UberCloneRFP
     public class MainActivity : AppCompatActivity
     {
         FirebaseDatabase database;
-        Button btntestConnection;
 
         protected override void OnCreate(Bundle savedInstanceState)
         {
@@ -20,9 +19,6 @@ namespace UberCloneRFP
             Xamarin.Essentials.Platform.Init(this, savedInstanceState);
             // Set our view from the "main" layout resource
             SetContentView(Resource.Layout.activity_main);
-
-            btntestConnection = (Button)FindViewById(Resource.Id.mybutton);
-            btntestConnection.Click += BtntestConnection_Click;
         }
 
         private void BtntestConnection_Click(object sender, System.EventArgs e)

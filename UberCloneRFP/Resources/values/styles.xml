@@ -18,4 +18,10 @@
       <item name="colorPrimaryDark">@color/uberPrimaryDark</item>
       <item name="colorAccent">@color/uberAccentColor</item>
     </style>
+
+    <style name="NavigationStyle" parent="Theme.AppCompat.Light.NoActionBar">
+      <item name="colorPrimary">@color/uberAccentColor</item>
+      <item name="colorPrimaryDark">@color/uberAccentColor</item>
+      <item name="colorAccent">@color/uberAccentColor</item>
+    </style>
 </resources>

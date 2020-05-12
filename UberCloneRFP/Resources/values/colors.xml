@@ -1,12 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="colorPrimary">#2c3e50</color>
+    <color name="colorPrimary">#2C3E50</color>
     <color name="colorPrimaryDark">#1B3147</color>
-    <color name="colorAccent">#3498db</color>
-    <color name="splashBackground">#ffffff</color>
-    <color name="uberWhite">#ffffff</color>
+    <color name="colorAccent">#3498DB</color>
+    <color name="splashBackground">#FFFFFF</color>
+    <color name="uberWhite">#FFFFFF</color>
     <color name="uberPrimary">#1C4258</color>
     <color name="uberAccentColor">#EE861f</color>
     <color name="uberPrimaryDark">#102A38</color>
     <color name="uberAccentClick">#A25508</color>
+    <color name="uberAsh">#E2E2E2</color>
 </resources>
