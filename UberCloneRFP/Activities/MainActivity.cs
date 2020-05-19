@@ -5,13 +5,16 @@ using Android.Runtime;
 using Android.Widget;
 using Firebase.Database;
 using Firebase;
+using Android.Views;
 
 namespace UberCloneRFP
 {
-    [Activity(Label = "@string/app_name", Theme = "@style/AppTheme", MainLauncher = false)]
+    [Activity(Label = "@string/app_name", Theme = "@style/UberTheme", MainLauncher = false)]
     public class MainActivity : AppCompatActivity
     {
         FirebaseDatabase database;
+        Android.Support.V7.Widget.Toolbar mainToolbar;
+        Android.Support.V4.Widget.DrawerLayout drawerLayout;
 
         protected override void OnCreate(Bundle savedInstanceState)
         {
@@ -19,13 +22,34 @@ namespace UberCloneRFP
             Xamarin.Essentials.Platform.Init(this, savedInstanceState);
             // Set our view from the "main" layout resource
             SetContentView(Resource.Layout.activity_main);
+
+            ConnectControl();
         }
 
-        private void BtntestConnection_Click(object sender, System.EventArgs e)
+        void ConnectControl()
         {
-            InitialDatabase();
+            drawerLayout = (Android.Support.V4.Widget.DrawerLayout)FindViewById(Resource.Id.drawerLayout);
+            mainToolbar = (Android.Support.V7.Widget.Toolbar)FindViewById(Resource.Id.mainToolbar);
+            SetSupportActionBar(mainToolbar);
+            SupportActionBar.Title = "";
+            Android.Support.V7.App.ActionBar actionBar = SupportActionBar;
+            actionBar.SetHomeAsUpIndicator(Resource.Mipmap.ic_menu_action);
+            actionBar.SetDisplayHomeAsUpEnabled(true);
         }
 
+        public override bool OnOptionsItemSelected(IMenuItem item)
+        {
+            switch(item.ItemId)
+            {
+                case Android.Resource.Id.Home:
+                    drawerLayout.OpenDrawer((int)GravityFlags.Left);
+                    return true;
+
+                default:
+                    return base.OnOptionsItemSelected(item);
+            }
+            
+        }
         void InitialDatabase()
         {
             var app = FirebaseApp.InitializeApp(this);

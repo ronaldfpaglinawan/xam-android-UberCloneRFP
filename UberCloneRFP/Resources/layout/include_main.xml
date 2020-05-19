@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+
 <android.support.design.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
@@ -9,13 +9,11 @@
         android:layout_height="fill_parent"
         android:background="@color/uberAsh">
     
-        <TextView 
-            android:layout_height="wrap_content"
+        <android.support.v7.widget.Toolbar
             android:layout_width="match_parent"
-            android:text="Main Layout"
-            android:textSize="20sp"
-            android:gravity="center"
-            android:layout_gravity="center"/>
+            android:layout_height="wrap_content"
+            android:minHeight="?android:attr/actionBarSize"
+            android:id="@+id/mainToolbar"/>
     </FrameLayout>
 
 </android.support.design.widget.CoordinatorLayout>

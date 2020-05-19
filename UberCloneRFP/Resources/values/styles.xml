@@ -19,6 +19,10 @@
       <item name="colorAccent">@color/uberAccentColor</item>
     </style>
 
+    <style name="UberTheme.ActionBar.Transparent" parent="UberTheme">
+      <item name="colorPrimary">@android:color/transparent</item>
+    </style>
+
     <style name="NavigationStyle" parent="Theme.AppCompat.Light.NoActionBar">
       <item name="colorPrimary">@color/uberAccentColor</item>
       <item name="colorPrimaryDark">@color/uberAccentColor</item>
