@@ -6,15 +6,17 @@ using Android.Widget;
 using Firebase.Database;
 using Firebase;
 using Android.Views;
+using Android.Gms.Maps;
 
 namespace UberCloneRFP
 {
     [Activity(Label = "@string/app_name", Theme = "@style/UberTheme", MainLauncher = false)]
-    public class MainActivity : AppCompatActivity
+    public class MainActivity : AppCompatActivity, IOnMapReadyCallback
     {
         FirebaseDatabase database;
         Android.Support.V7.Widget.Toolbar mainToolbar;
         Android.Support.V4.Widget.DrawerLayout drawerLayout;
+        GoogleMap mainMap;
 
         protected override void OnCreate(Bundle savedInstanceState)
         {
@@ -22,8 +24,10 @@ namespace UberCloneRFP
             Xamarin.Essentials.Platform.Init(this, savedInstanceState);
             // Set our view from the "main" layout resource
             SetContentView(Resource.Layout.activity_main);
-
             ConnectControl();
+
+            SupportMapFragment mapFragment = (SupportMapFragment)SupportFragmentManager.FindFragmentById(Resource.Id.map);
+            mapFragment.GetMapAsync(this);
         }
 
         void ConnectControl()
@@ -82,6 +86,11 @@ namespace UberCloneRFP
             Xamarin.Essentials.Platform.OnRequestPermissionsResult(requestCode, permissions, grantResults);
 
             base.OnRequestPermissionsResult(requestCode, permissions, grantResults);
+        }
+
+        public void OnMapReady(GoogleMap googleMap)
+        {
+            mainMap = googleMap;
         }
     }
 }
