@@ -7,6 +7,7 @@ using Firebase.Database;
 using Firebase;
 using Android.Views;
 using Android.Gms.Maps;
+using Android.Gms.Maps.Model;
 
 namespace UberCloneRFP
 {
@@ -90,6 +91,15 @@ namespace UberCloneRFP
 
         public void OnMapReady(GoogleMap googleMap)
         {
+            try
+            {
+                bool success = googleMap.SetMapStyle(MapStyleOptions.LoadRawResourceStyle(this, Resource.Raw.silvermapstyle));
+            }
+            catch
+            {
+
+            }
+            
             mainMap = googleMap;
         }
     }
