@@ -120,6 +120,13 @@
             </FrameLayout>
         </LinearLayout>
 
+        <ImageView
+            android:id="@+id/centerMarker"
+            android:layout_width="60dp"
+            android:layout_height="60dp"
+            android:layout_gravity="center"
+            android:src="@drawable/greenmarker"/>
+
         <RelativeLayout
             android:layout_width="35dp"
             android:layout_height="35dp"
