@@ -11,6 +11,7 @@ using Android.Gms.Maps.Model;
 using Android;
 using Android.Support.V4.App;
 using Android.Content.PM;
+using Android.Gms.Location;
 
 namespace UberCloneRFP
 {
@@ -25,6 +26,14 @@ namespace UberCloneRFP
         readonly string[] permissionGroupLocation = { Manifest.Permission.AccessCoarseLocation, Manifest.Permission.AccessFineLocation };
         const int requestLocationId = 0;
 
+        LocationRequest mLocationRequest;
+        FusedLocationProviderClient locationClient;
+        Android.Locations.Location mLastLocation;
+
+        static int UPDATE_INTERVAL = 5; //5 SECONDS
+        static int FASTEST_INTERVAL = 5;
+        static int DISPLACEMENT = 3; //meters
+
         protected override void OnCreate(Bundle savedInstanceState)
         {
             base.OnCreate(savedInstanceState);
@@ -37,6 +46,8 @@ namespace UberCloneRFP
             mapFragment.GetMapAsync(this);
 
             CheckLocationPermission();
+            CreateLocationRequest();
+            GetMyLocation();
         }
 
         void ConnectControl()
@@ -94,7 +105,8 @@ namespace UberCloneRFP
         {
             try
             {
-                bool success = googleMap.SetMapStyle(MapStyleOptions.LoadRawResourceStyle(this, Resource.Raw.silvermapstyle));
+                // to set a customize map style
+                //bool success = googleMap.SetMapStyle(MapStyleOptions.LoadRawResourceStyle(this, Resource.Raw.silvermapstyle));
             }
             catch
             {
@@ -120,6 +132,32 @@ namespace UberCloneRFP
             }
 
             return permissionGranted;
+        }
+
+        void CreateLocationRequest()
+        {
+            mLocationRequest = new LocationRequest();
+            mLocationRequest.SetInterval(UPDATE_INTERVAL);
+            mLocationRequest.SetFastestInterval(FASTEST_INTERVAL);
+            mLocationRequest.SetPriority(LocationRequest.PriorityHighAccuracy);
+            mLocationRequest.SetSmallestDisplacement(DISPLACEMENT);
+            locationClient = LocationServices.GetFusedLocationProviderClient(this);
+        }
+        
+        async void GetMyLocation()
+        {
+            if(!CheckLocationPermission())
+            {
+                return;
+            }
+
+            mLastLocation = await locationClient.GetLastLocationAsync();
+
+            if(mLastLocation != null)
+            {
+                LatLng myposition = new LatLng(mLastLocation.Latitude, mLastLocation.Longitude);
+                mainMap.MoveCamera(CameraUpdateFactory.NewLatLngZoom(myposition, 17));
+            }
         }
 
         public override void OnRequestPermissionsResult(int requestCode, string[] permissions, [GeneratedEnum] Permission[] grantResults)
