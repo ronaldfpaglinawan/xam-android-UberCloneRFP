@@ -12,6 +12,8 @@ using Android;
 using Android.Support.V4.App;
 using Android.Content.PM;
 using Android.Gms.Location;
+using UberCloneRFP.Helpers;
+using System;
 
 namespace UberCloneRFP
 {
@@ -29,6 +31,7 @@ namespace UberCloneRFP
         LocationRequest mLocationRequest;
         FusedLocationProviderClient locationClient;
         Android.Locations.Location mLastLocation;
+        LocationCallbackHelper mLocationCallback;
 
         static int UPDATE_INTERVAL = 5; //5 SECONDS
         static int FASTEST_INTERVAL = 5;
@@ -48,6 +51,7 @@ namespace UberCloneRFP
             CheckLocationPermission();
             CreateLocationRequest();
             GetMyLocation();
+            StartLocationUpdates();
         }
 
         void ConnectControl()
@@ -142,8 +146,33 @@ namespace UberCloneRFP
             mLocationRequest.SetPriority(LocationRequest.PriorityHighAccuracy);
             mLocationRequest.SetSmallestDisplacement(DISPLACEMENT);
             locationClient = LocationServices.GetFusedLocationProviderClient(this);
+            mLocationCallback = new LocationCallbackHelper();
+            mLocationCallback.MyLocation += MLocationCallback_MyLocation;
         }
-        
+
+        void MLocationCallback_MyLocation(object sender, LocationCallbackHelper.OnLocationCapturedEventArgs e)
+        {
+            mLastLocation = e.Location;
+            LatLng myposition = new LatLng(mLastLocation.Latitude, mLastLocation.Longitude);
+            mainMap.AnimateCamera(CameraUpdateFactory.NewLatLngZoom(myposition, 17));
+        }
+
+        void StartLocationUpdates()
+        {
+            if(CheckLocationPermission())
+            {
+                locationClient.RequestLocationUpdates(mLocationRequest, mLocationCallback, null);
+            }
+        }
+
+        void StopLocationUpdates()
+        {
+            if(locationClient != null && mLocationCallback != null)
+            {
+                locationClient.RemoveLocationUpdates(mLocationCallback);
+            }
+        }
+
         async void GetMyLocation()
         {
             if(!CheckLocationPermission())
