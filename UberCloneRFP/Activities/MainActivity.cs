@@ -14,6 +14,13 @@ using Android.Content.PM;
 using Android.Gms.Location;
 using UberCloneRFP.Helpers;
 using System;
+using Google.Places;
+using Xamarin.Essentials;
+using Android.Graphics;
+using System.Collections.Generic;
+using Java.IO;
+using Java.Lang.Reflect;
+using Android.Content;
 
 namespace UberCloneRFP
 {
@@ -23,6 +30,15 @@ namespace UberCloneRFP
         FirebaseDatabase database;
         Android.Support.V7.Widget.Toolbar mainToolbar;
         Android.Support.V4.Widget.DrawerLayout drawerLayout;
+
+        //TextViews
+        TextView pickupLocationText;
+        TextView destinationText;
+
+        //Layouts
+        RelativeLayout layoutPickup;
+        RelativeLayout layoutDestination;
+
         GoogleMap mainMap;
 
         readonly string[] permissionGroupLocation = { Manifest.Permission.AccessCoarseLocation, Manifest.Permission.AccessFineLocation };
@@ -52,22 +68,37 @@ namespace UberCloneRFP
             CreateLocationRequest();
             GetMyLocation();
             StartLocationUpdates();
+            InitializePlaces();
         }
 
         void ConnectControl()
         {
+            //DrawerLayout
             drawerLayout = (Android.Support.V4.Widget.DrawerLayout)FindViewById(Resource.Id.drawerLayout);
+
+            //Toolbar
             mainToolbar = (Android.Support.V7.Widget.Toolbar)FindViewById(Resource.Id.mainToolbar);
             SetSupportActionBar(mainToolbar);
             SupportActionBar.Title = "";
             Android.Support.V7.App.ActionBar actionBar = SupportActionBar;
             actionBar.SetHomeAsUpIndicator(Resource.Mipmap.ic_menu_action);
             actionBar.SetDisplayHomeAsUpEnabled(true);
+
+            //TextView
+            pickupLocationText = (TextView)FindViewById(Resource.Id.pickupLocationText);
+            destinationText = (TextView)FindViewById(Resource.Id.destinationText);
+
+            //Layouts
+            layoutPickup = (RelativeLayout)FindViewById(Resource.Id.layoutPickup);
+            layoutDestination = (RelativeLayout)FindViewById(Resource.Id.layoutDestination);
+
+            layoutPickup.Click += LayoutPickup_Click;
+            layoutDestination.Click += LayoutDestination_Click;
         }
 
         public override bool OnOptionsItemSelected(IMenuItem item)
         {
-            switch(item.ItemId)
+            switch (item.ItemId)
             {
                 case Android.Resource.Id.Home:
                     drawerLayout.OpenDrawer((int)GravityFlags.Left);
@@ -76,7 +107,7 @@ namespace UberCloneRFP
                 default:
                     return base.OnOptionsItemSelected(item);
             }
-            
+
         }
         void InitialDatabase()
         {
@@ -105,6 +136,15 @@ namespace UberCloneRFP
             Toast.MakeText(this, "Completed", ToastLength.Short).Show();
         }
 
+        void InitializePlaces()
+        {
+            string mapKey = Resources.GetString(Resource.String.mapkey);
+            if (PlacesApi.IsInitialized)
+            {
+                PlacesApi.Initialize(this, mapKey);
+            }
+        }
+
         public void OnMapReady(GoogleMap googleMap)
         {
             try
@@ -116,7 +156,7 @@ namespace UberCloneRFP
             {
 
             }
-            
+
             mainMap = googleMap;
         }
 
@@ -124,7 +164,7 @@ namespace UberCloneRFP
         {
             bool permissionGranted = false;
 
-            if (ActivityCompat.CheckSelfPermission(this, Manifest.Permission.AccessFineLocation) != Android.Content.PM.Permission.Granted && 
+            if (ActivityCompat.CheckSelfPermission(this, Manifest.Permission.AccessFineLocation) != Android.Content.PM.Permission.Granted &&
                 ActivityCompat.CheckSelfPermission(this, Manifest.Permission.AccessCoarseLocation) != Android.Content.PM.Permission.Granted)
             {
                 permissionGranted = false;
@@ -159,7 +199,7 @@ namespace UberCloneRFP
 
         void StartLocationUpdates()
         {
-            if(CheckLocationPermission())
+            if (CheckLocationPermission())
             {
                 locationClient.RequestLocationUpdates(mLocationRequest, mLocationCallback, null);
             }
@@ -167,7 +207,7 @@ namespace UberCloneRFP
 
         void StopLocationUpdates()
         {
-            if(locationClient != null && mLocationCallback != null)
+            if (locationClient != null && mLocationCallback != null)
             {
                 locationClient.RemoveLocationUpdates(mLocationCallback);
             }
@@ -175,14 +215,14 @@ namespace UberCloneRFP
 
         async void GetMyLocation()
         {
-            if(!CheckLocationPermission())
+            if (!CheckLocationPermission())
             {
                 return;
             }
 
             mLastLocation = await locationClient.GetLastLocationAsync();
 
-            if(mLastLocation != null)
+            if (mLastLocation != null)
             {
                 LatLng myposition = new LatLng(mLastLocation.Latitude, mLastLocation.Longitude);
                 mainMap.MoveCamera(CameraUpdateFactory.NewLatLngZoom(myposition, 17));
@@ -191,13 +231,124 @@ namespace UberCloneRFP
 
         public override void OnRequestPermissionsResult(int requestCode, string[] permissions, [GeneratedEnum] Permission[] grantResults)
         {
-            if(grantResults[0] == (int)Android.Content.PM.Permission.Granted)
+            if (grantResults[0] == (int)Android.Content.PM.Permission.Granted)
             {
                 Toast.MakeText(this, "Permission was granted", ToastLength.Short).Show();
             }
             else
             {
                 Toast.MakeText(this, "Permission was denied", ToastLength.Short).Show();
+            }
+        }
+
+        void PickupRadio_Click(object sender, System.EventArgs e)
+        {
+            //addressRequest = 1;
+            //pickupRadio.Checked = true;
+            //pickupRadio.Checked = false;
+            //takeAddressFromSearch = false;
+            //centerMarker.SetColorFilter(Color.DarkGreen);
+        }
+
+        void DestinationRadio_Click(object sender, System.EventArgs e)
+        {
+            //addressRequest = 2;
+            //destinationRadio.Checked = true;
+            //pickupRadio.Checked = false;
+            //takeAddressFromSearch = false;
+            //centerMarker.SetColorFilter(Color.Red);
+        }
+
+        void LayoutPickup_Click(object sender, System.EventArgs e)
+        {
+            //AutocompleteFilter filter = new AutocompleteFilter.Builder()
+            //    .SetCountry("NZ")
+            //    .Build();
+
+            //Intent intent = new PlaceAutoComplete.IntentBuilder(PlaceAutoComplete.ModeOverlay)
+            //    .SetFilter(filter)
+            //    .Build(this);
+
+            //StartActivityForResult(intent, 1);
+
+
+            List<Place.Field> fields = new List<Place.Field>();
+            fields.Add(Place.Field.Id);
+            fields.Add(Place.Field.Name);
+            fields.Add(Place.Field.LatLng);
+            fields.Add(Place.Field.Address);
+
+            Intent intent = new Autocomplete.IntentBuilder(AutocompleteActivityMode.Overlay, fields)
+                .SetCountry("NZ")
+                .Build(this);
+
+            StartActivityForResult(intent, 1);
+        }
+
+        void LayoutDestination_Click(object sender, System.EventArgs e)
+        {
+            //AutocompleteFilter filter = new AutocompleteFilter.Builder()
+            //    .SetCountry("NZ")
+            //    .Build();
+
+            //Intent intent = new PlaceAutoComplete.IntentBuilder(PlaceAutoComplete.ModeOverlay)
+            //    .SetFilter(filter)
+            //    .Build(this);
+
+            //StartActivityForResult(intent, 2);
+
+
+            List<Place.Field> fields = new List<Place.Field>();
+            fields.Add(Place.Field.Id);
+            fields.Add(Place.Field.Name);
+            fields.Add(Place.Field.LatLng);
+            fields.Add(Place.Field.Address);
+
+            Intent intent = new Autocomplete.IntentBuilder(AutocompleteActivityMode.Overlay, fields)
+                .SetCountry("NZ")
+                .Build(this);
+
+            StartActivityForResult(intent, 2);
+        }
+
+        protected override void OnActivityResult(int requestCode, [GeneratedEnum] Result resultCode, Intent data)
+        {
+            base.OnActivityResult(requestCode, resultCode, data);
+
+            if (requestCode == 1)
+            {
+                if (resultCode == Android.App.Result.Ok)
+                {
+                    System.Console.WriteLine($"requestCode is {requestCode}");
+                    //takeAddressFromSearch = true;
+                    //pickupRadio.Checked = false;
+                    //destinationRadio.Checked = false;
+
+                    //var place = Autocomplete.GetPlaceFromIntent(data);
+                    //pickupLocationText.Text = place.Name.ToString();
+                    //pickupAddress = place.Name.ToString();
+                    //pickupLocationLatlng = place.LatLng;
+                    //mainMap.AnimateCamera(CameraUpdateFactory.NewLatLngZoom(place.LatLng, 15));
+                    //centerMarker.SetColorFilter(Color.DarkGreen);
+                }
+            }
+
+            if (requestCode == 2)
+            {
+                if (resultCode == Android.App.Result.Ok)
+                {
+                    System.Console.WriteLine($"requestCode is {requestCode}");
+                    //takeAddressFromSearch = true;
+                    //pickupRadio.Checked = false;
+                    //destinationRadio.Checked = false;
+
+                    //var place = Autocomplete.GetPlaceFromIntent(data);
+                    //pickupLocationText.Text = place.Name.ToString();
+                    //pickupAddress = place.Name.ToString();
+                    //pickupLocationLatlng = place.LatLng;
+                    //mainMap.AnimateCamera(CameraUpdateFactory.NewLatLngZoom(place.LatLng, 15));
+                    //centerMarker.SetColorFilter(Color.DarkGreen);
+                }
             }
         }
     }
