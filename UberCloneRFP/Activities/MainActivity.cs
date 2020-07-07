@@ -53,6 +53,13 @@ namespace UberCloneRFP
         static int FASTEST_INTERVAL = 5;
         static int DISPLACEMENT = 3; //meters
 
+        //Helpers
+        MapFunctionHelper mapHelper;
+
+        //TripDetails
+        LatLng pickupLocationLatLng;
+
+
         protected override void OnCreate(Bundle savedInstanceState)
         {
             base.OnCreate(savedInstanceState);
@@ -158,6 +165,15 @@ namespace UberCloneRFP
             }
 
             mainMap = googleMap;
+            mainMap.CameraIdle += MainMap_CameraIdle;
+            string mapkey = Resources.GetString(Resource.String.mapkey);
+            mapHelper = new MapFunctionHelper(mapkey);
+        }
+
+        private async void MainMap_CameraIdle(object sender, EventArgs e)
+        {
+            pickupLocationLatLng = mainMap.CameraPosition.Target;
+            pickupLocationText.Text = await mapHelper.FindCoordinateAddress(pickupLocationLatLng);
         }
 
         bool CheckLocationPermission()
