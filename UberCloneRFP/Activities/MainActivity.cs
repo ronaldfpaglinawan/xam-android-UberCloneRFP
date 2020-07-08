@@ -35,6 +35,13 @@ namespace UberCloneRFP
         TextView pickupLocationText;
         TextView destinationText;
 
+        //Buttons
+        RadioButton pickupRadio;
+        RadioButton destinationRadio;
+
+        //ImageViews
+        ImageView centerMarker;
+
         //Layouts
         RelativeLayout layoutPickup;
         RelativeLayout layoutDestination;
@@ -58,7 +65,11 @@ namespace UberCloneRFP
 
         //TripDetails
         LatLng pickupLocationLatLng;
+        LatLng destinationLatLng;
 
+        //Flags
+        int addressRequest = 1;
+        bool takeAddressFromSearch;
 
         protected override void OnCreate(Bundle savedInstanceState)
         {
@@ -95,12 +106,21 @@ namespace UberCloneRFP
             pickupLocationText = (TextView)FindViewById(Resource.Id.pickupLocationText);
             destinationText = (TextView)FindViewById(Resource.Id.destinationText);
 
+            //Buttons
+            pickupRadio = (RadioButton)FindViewById(Resource.Id.pickupRadio);
+            destinationRadio = (RadioButton)FindViewById(Resource.Id.destinationRadio);
+            pickupRadio.Click += PickupRadio_Click;
+            destinationRadio.Click += DestinationRadio_Click;
+
             //Layouts
             layoutPickup = (RelativeLayout)FindViewById(Resource.Id.layoutPickup);
             layoutDestination = (RelativeLayout)FindViewById(Resource.Id.layoutDestination);
 
             layoutPickup.Click += LayoutPickup_Click;
             layoutDestination.Click += LayoutDestination_Click;
+
+            //ImageViews
+            centerMarker = (ImageView)FindViewById(Resource.Id.centerMarker);
         }
 
         public override bool OnOptionsItemSelected(IMenuItem item)
@@ -172,8 +192,19 @@ namespace UberCloneRFP
 
         private async void MainMap_CameraIdle(object sender, EventArgs e)
         {
-            pickupLocationLatLng = mainMap.CameraPosition.Target;
-            pickupLocationText.Text = await mapHelper.FindCoordinateAddress(pickupLocationLatLng);
+            if(!takeAddressFromSearch)
+            {
+                if (addressRequest == 1)
+                {
+                    pickupLocationLatLng = mainMap.CameraPosition.Target;
+                    pickupLocationText.Text = await mapHelper.FindCoordinateAddress(pickupLocationLatLng);
+                }
+                else if (addressRequest == 2)
+                {
+                    destinationLatLng = mainMap.CameraPosition.Target;
+                    destinationText.Text = await mapHelper.FindCoordinateAddress(destinationLatLng);
+                }
+            }
         }
 
         bool CheckLocationPermission()
@@ -259,20 +290,20 @@ namespace UberCloneRFP
 
         void PickupRadio_Click(object sender, System.EventArgs e)
         {
-            //addressRequest = 1;
-            //pickupRadio.Checked = true;
-            //pickupRadio.Checked = false;
-            //takeAddressFromSearch = false;
-            //centerMarker.SetColorFilter(Color.DarkGreen);
+            addressRequest = 1;
+            pickupRadio.Checked = true;
+            destinationRadio.Checked = false;
+            takeAddressFromSearch = false;
+            centerMarker.SetColorFilter(Color.DarkGreen);
         }
 
         void DestinationRadio_Click(object sender, System.EventArgs e)
         {
-            //addressRequest = 2;
-            //destinationRadio.Checked = true;
-            //pickupRadio.Checked = false;
-            //takeAddressFromSearch = false;
-            //centerMarker.SetColorFilter(Color.Red);
+            addressRequest = 2;
+            destinationRadio.Checked = true;
+            pickupRadio.Checked = false;
+            takeAddressFromSearch = false;
+            centerMarker.SetColorFilter(Color.Red);
         }
 
         void LayoutPickup_Click(object sender, System.EventArgs e)
@@ -336,16 +367,16 @@ namespace UberCloneRFP
                 if (resultCode == Android.App.Result.Ok)
                 {
                     System.Console.WriteLine($"requestCode is {requestCode}");
-                    //takeAddressFromSearch = true;
-                    //pickupRadio.Checked = false;
-                    //destinationRadio.Checked = false;
+                    takeAddressFromSearch = true;
+                    pickupRadio.Checked = false;
+                    destinationRadio.Checked = false;
 
-                    //var place = Autocomplete.GetPlaceFromIntent(data);
-                    //pickupLocationText.Text = place.Name.ToString();
+                    var place = Autocomplete.GetPlaceFromIntent(data);
+                    pickupLocationText.Text = place.Name.ToString();
                     //pickupAddress = place.Name.ToString();
-                    //pickupLocationLatlng = place.LatLng;
-                    //mainMap.AnimateCamera(CameraUpdateFactory.NewLatLngZoom(place.LatLng, 15));
-                    //centerMarker.SetColorFilter(Color.DarkGreen);
+                    pickupLocationLatLng = place.LatLng;
+                    mainMap.AnimateCamera(CameraUpdateFactory.NewLatLngZoom(place.LatLng, 15));
+                    centerMarker.SetColorFilter(Color.DarkGreen);
                 }
             }
 
@@ -354,16 +385,16 @@ namespace UberCloneRFP
                 if (resultCode == Android.App.Result.Ok)
                 {
                     System.Console.WriteLine($"requestCode is {requestCode}");
-                    //takeAddressFromSearch = true;
-                    //pickupRadio.Checked = false;
-                    //destinationRadio.Checked = false;
+                    takeAddressFromSearch = true;
+                    pickupRadio.Checked = false;
+                    destinationRadio.Checked = false;
 
-                    //var place = Autocomplete.GetPlaceFromIntent(data);
-                    //pickupLocationText.Text = place.Name.ToString();
-                    //pickupAddress = place.Name.ToString();
-                    //pickupLocationLatlng = place.LatLng;
-                    //mainMap.AnimateCamera(CameraUpdateFactory.NewLatLngZoom(place.LatLng, 15));
-                    //centerMarker.SetColorFilter(Color.DarkGreen);
+                    var place = Autocomplete.GetPlaceFromIntent(data);
+                    destinationText.Text = place.Name.ToString();
+                    //destinationAddress = place.Name.ToString();
+                    destinationLatLng = place.LatLng;
+                    mainMap.AnimateCamera(CameraUpdateFactory.NewLatLngZoom(place.LatLng, 15));
+                    centerMarker.SetColorFilter(Color.DarkGreen);
                 }
             }
         }
