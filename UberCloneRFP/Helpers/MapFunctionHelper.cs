@@ -29,7 +29,7 @@ namespace UberCloneRFP.Helpers
 
         public string GetGeoCodeUrl(double lat, double lng)
         {
-            string url = "https://maps.googleapis.com/maps/api/geocode/json?latlng=" + lat + "," + lng + "&keys" + mapkey;
+            string url = "https://maps.googleapis.com/maps/api/geocode/json?latlng=" + lat + "," + lng + "&key=" + mapkey;
             return url;
         }
 
