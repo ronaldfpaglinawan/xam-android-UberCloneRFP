@@ -21,6 +21,7 @@ using System.Collections.Generic;
 using Java.IO;
 using Java.Lang.Reflect;
 using Android.Content;
+using Android.Support.Design.Widget;
 
 namespace UberCloneRFP
 {
@@ -36,6 +37,8 @@ namespace UberCloneRFP
         TextView destinationText;
 
         //Buttons
+        Button favouritePlacesButton;
+        Button locationSetButton;
         RadioButton pickupRadio;
         RadioButton destinationRadio;
 
@@ -45,6 +48,9 @@ namespace UberCloneRFP
         //Layouts
         RelativeLayout layoutPickup;
         RelativeLayout layoutDestination;
+
+        //Bottomsheets
+        BottomSheetBehavior tripDetailsBottomSheetBehavior;
 
         GoogleMap mainMap;
 
@@ -107,8 +113,12 @@ namespace UberCloneRFP
             destinationText = (TextView)FindViewById(Resource.Id.destinationText);
 
             //Buttons
+            favouritePlacesButton = (Button)FindViewById(Resource.Id.favouritePlacesButton);
+            locationSetButton = (Button)FindViewById(Resource.Id.locationSetButton);
             pickupRadio = (RadioButton)FindViewById(Resource.Id.pickupRadio);
             destinationRadio = (RadioButton)FindViewById(Resource.Id.destinationRadio);
+            favouritePlacesButton.Click += FavouritePlacesButton_Click;
+            locationSetButton.Click += LocationSetButton_Click;
             pickupRadio.Click += PickupRadio_Click;
             destinationRadio.Click += DestinationRadio_Click;
 
@@ -121,6 +131,25 @@ namespace UberCloneRFP
 
             //ImageViews
             centerMarker = (ImageView)FindViewById(Resource.Id.centerMarker);
+
+            //Bottomsheets
+            FrameLayout tripDetailsView = (FrameLayout)FindViewById(Resource.Id.tripdetails_bottomsheet);
+            tripDetailsBottomSheetBehavior = BottomSheetBehavior.From(tripDetailsView);
+        }
+        
+        void TripLocationsSet()
+        {
+            favouritePlacesButton.Visibility = ViewStates.Invisible;
+            locationSetButton.Visibility = ViewStates.Visible;
+        }
+        private void LocationSetButton_Click(object sender, EventArgs e)
+        {
+            tripDetailsBottomSheetBehavior.State = BottomSheetBehavior.StateExpanded;
+        }
+
+        private void FavouritePlacesButton_Click(object sender, EventArgs e)
+        {
+            throw new NotImplementedException();
         }
 
         public override bool OnOptionsItemSelected(IMenuItem item)
@@ -203,6 +232,7 @@ namespace UberCloneRFP
                 {
                     destinationLatLng = mainMap.CameraPosition.Target;
                     destinationText.Text = await mapHelper.FindCoordinateAddress(destinationLatLng);
+                    TripLocationsSet();
                 }
             }
         }
@@ -394,7 +424,8 @@ namespace UberCloneRFP
                     //destinationAddress = place.Name.ToString();
                     destinationLatLng = place.LatLng;
                     mainMap.AnimateCamera(CameraUpdateFactory.NewLatLngZoom(place.LatLng, 15));
-                    centerMarker.SetColorFilter(Color.DarkGreen);
+                    centerMarker.SetColorFilter(Color.Red);
+                    TripLocationsSet();
                 }
             }
         }
