@@ -142,9 +142,44 @@ namespace UberCloneRFP
             favouritePlacesButton.Visibility = ViewStates.Invisible;
             locationSetButton.Visibility = ViewStates.Visible;
         }
-        private void LocationSetButton_Click(object sender, EventArgs e)
+
+        void TripDrawnOnMap()
         {
-            tripDetailsBottomSheetBehavior.State = BottomSheetBehavior.StateExpanded;
+            layoutDestination.Clickable = false;
+            layoutPickup.Clickable = false;
+            pickupRadio.Enabled = false;
+            destinationRadio.Enabled = false;
+            takeAddressFromSearch = true;
+            centerMarker.Visibility = ViewStates.Invisible;
+        }
+        async void LocationSetButton_Click(object sender, EventArgs e)
+        {
+            locationSetButton.Text = "Please wait...";
+            locationSetButton.Enabled = false;
+
+            string json;
+            json = await mapHelper.GetDirectionJsonAsync(pickupLocationLatLng, destinationLatLng);
+
+            if (!string.IsNullOrEmpty(json))
+            {
+                TextView txtFare = (TextView)FindViewById(Resource.Id.tripEstimateFareText);
+                TextView txtTime = (TextView)FindViewById(Resource.Id.newTripTimeText);
+
+                mapHelper.DrawTripMap(json);
+
+                // Set Estimate Fares and Time
+                txtFare.Text = "$" + mapHelper.EstimateFares().ToString() + "_" + (mapHelper.EstimateFares() + 20).ToString();
+                txtTime.Text = mapHelper.durationString;
+
+                // Display BottomSheet
+                tripDetailsBottomSheetBehavior.State = BottomSheetBehavior.StateExpanded;
+                
+                //Disable Views
+                TripDrawnOnMap();
+            }
+
+            locationSetButton.Text = "Done";
+            locationSetButton.Enabled = true;
         }
 
         private void FavouritePlacesButton_Click(object sender, EventArgs e)
@@ -216,7 +251,7 @@ namespace UberCloneRFP
             mainMap = googleMap;
             mainMap.CameraIdle += MainMap_CameraIdle;
             string mapkey = Resources.GetString(Resource.String.mapkey);
-            mapHelper = new MapFunctionHelper(mapkey);
+            mapHelper = new MapFunctionHelper(mapkey, mainMap);
         }
 
         private async void MainMap_CameraIdle(object sender, EventArgs e)
@@ -308,9 +343,14 @@ namespace UberCloneRFP
 
         public override void OnRequestPermissionsResult(int requestCode, string[] permissions, [GeneratedEnum] Permission[] grantResults)
         {
+            if(grantResults.Length > 1)
+            {
+                return;
+            }
+
             if (grantResults[0] == (int)Android.Content.PM.Permission.Granted)
             {
-                Toast.MakeText(this, "Permission was granted", ToastLength.Short).Show();
+                StartLocationUpdates();
             }
             else
             {

@@ -71,6 +71,7 @@
     <Compile Include="Activities\SplashActivity.cs" />
     <Compile Include="EventListeners\TaskCompletionListener.cs" />
     <Compile Include="Activities\MainActivity.cs" />
+    <Compile Include="Helpers\DirectionParser.cs" />
     <Compile Include="Helpers\GeocodingParser.cs" />
     <Compile Include="Helpers\LocationCallbackHelper.cs" />
     <Compile Include="Helpers\MapFunctionHelper.cs" />
@@ -143,22 +144,22 @@
     </PackageReference>
     <PackageReference Include="Xamarin.Essentials" Version="1.5.3.2" />
     <PackageReference Include="Xamarin.Firebase.Auth">
-      <Version>71.1605.1</Version>
+      <Version>71.1605.4</Version>
     </PackageReference>
     <PackageReference Include="Xamarin.Firebase.Database">
-      <Version>71.1601.1</Version>
+      <Version>71.1601.4</Version>
     </PackageReference>
     <PackageReference Include="Xamarin.Google.Android.Places">
       <Version>1.1.0.2</Version>
     </PackageReference>
     <PackageReference Include="Xamarin.GooglePlayServices.Base">
-      <Version>71.1610.1</Version>
+      <Version>71.1610.4</Version>
     </PackageReference>
     <PackageReference Include="Xamarin.GooglePlayServices.Location">
-      <Version>71.1600.1</Version>
+      <Version>71.1600.4</Version>
     </PackageReference>
     <PackageReference Include="Xamarin.GooglePlayServices.Maps">
-      <Version>71.1610.1</Version>
+      <Version>71.1610.4</Version>
     </PackageReference>
   </ItemGroup>
   <ItemGroup>
