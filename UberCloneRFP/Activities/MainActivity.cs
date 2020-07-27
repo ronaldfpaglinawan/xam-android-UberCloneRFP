@@ -77,24 +77,7 @@ namespace UberCloneRFP
         int addressRequest = 1;
         bool takeAddressFromSearch;
 
-        protected override void OnCreate(Bundle savedInstanceState)
-        {
-            base.OnCreate(savedInstanceState);
-            Xamarin.Essentials.Platform.Init(this, savedInstanceState);
-            // Set our view from the "main" layout resource
-            SetContentView(Resource.Layout.activity_main);
-            ConnectControl();
-
-            SupportMapFragment mapFragment = (SupportMapFragment)SupportFragmentManager.FindFragmentById(Resource.Id.map);
-            mapFragment.GetMapAsync(this);
-
-            CheckLocationPermission();
-            CreateLocationRequest();
-            GetMyLocation();
-            StartLocationUpdates();
-            InitializePlaces();
-        }
-
+        
         void ConnectControl()
         {
             //DrawerLayout
@@ -136,22 +119,9 @@ namespace UberCloneRFP
             FrameLayout tripDetailsView = (FrameLayout)FindViewById(Resource.Id.tripdetails_bottomsheet);
             tripDetailsBottomSheetBehavior = BottomSheetBehavior.From(tripDetailsView);
         }
-        
-        void TripLocationsSet()
-        {
-            favouritePlacesButton.Visibility = ViewStates.Invisible;
-            locationSetButton.Visibility = ViewStates.Visible;
-        }
 
-        void TripDrawnOnMap()
-        {
-            layoutDestination.Clickable = false;
-            layoutPickup.Clickable = false;
-            pickupRadio.Enabled = false;
-            destinationRadio.Enabled = false;
-            takeAddressFromSearch = true;
-            centerMarker.Visibility = ViewStates.Invisible;
-        }
+
+        #region CLICK EVENT HANDLERS
         async void LocationSetButton_Click(object sender, EventArgs e)
         {
             locationSetButton.Text = "Please wait...";
@@ -200,33 +170,80 @@ namespace UberCloneRFP
             }
 
         }
-        void InitialDatabase()
+
+        void PickupRadio_Click(object sender, System.EventArgs e)
         {
-            var app = FirebaseApp.InitializeApp(this);
-
-            if (app == null)
-            {
-                var options = new FirebaseOptions.Builder()
-                    .SetApplicationId("uberclone-6596f")
-                    .SetApiKey("AIzaSyAXqLpF_JVINHqrS74X_r6uMG8wW5EZlzs")
-                    .SetDatabaseUrl("https://uberclone-6596f.firebaseio.com")
-                    .SetStorageBucket("uberclone-6596f.appspot.com")
-                    .Build();
-
-                app = FirebaseApp.InitializeApp(this, options);
-                database = FirebaseDatabase.GetInstance(app);
-            }
-            else
-            {
-                database = FirebaseDatabase.GetInstance(app);
-            }
-
-            DatabaseReference dbref = database.GetReference("UserSupport");
-            dbref.SetValue("RFP_Ticket1");
-
-            Toast.MakeText(this, "Completed", ToastLength.Short).Show();
+            addressRequest = 1;
+            pickupRadio.Checked = true;
+            destinationRadio.Checked = false;
+            takeAddressFromSearch = false;
+            centerMarker.SetColorFilter(Color.DarkGreen);
         }
 
+        void DestinationRadio_Click(object sender, System.EventArgs e)
+        {
+            addressRequest = 2;
+            destinationRadio.Checked = true;
+            pickupRadio.Checked = false;
+            takeAddressFromSearch = false;
+            centerMarker.SetColorFilter(Color.Red);
+        }
+
+        void LayoutPickup_Click(object sender, System.EventArgs e)
+        {
+            //AutocompleteFilter filter = new AutocompleteFilter.Builder()
+            //    .SetCountry("NZ")
+            //    .Build();
+
+            //Intent intent = new PlaceAutoComplete.IntentBuilder(PlaceAutoComplete.ModeOverlay)
+            //    .SetFilter(filter)
+            //    .Build(this);
+
+            //StartActivityForResult(intent, 1);
+
+
+            List<Place.Field> fields = new List<Place.Field>();
+            fields.Add(Place.Field.Id);
+            fields.Add(Place.Field.Name);
+            fields.Add(Place.Field.LatLng);
+            fields.Add(Place.Field.Address);
+
+            Intent intent = new Autocomplete.IntentBuilder(AutocompleteActivityMode.Overlay, fields)
+                .SetCountry("NZ")
+                .Build(this);
+
+            StartActivityForResult(intent, 1);
+        }
+
+        void LayoutDestination_Click(object sender, System.EventArgs e)
+        {
+            //AutocompleteFilter filter = new AutocompleteFilter.Builder()
+            //    .SetCountry("NZ")
+            //    .Build();
+
+            //Intent intent = new PlaceAutoComplete.IntentBuilder(PlaceAutoComplete.ModeOverlay)
+            //    .SetFilter(filter)
+            //    .Build(this);
+
+            //StartActivityForResult(intent, 2);
+
+
+            List<Place.Field> fields = new List<Place.Field>();
+            fields.Add(Place.Field.Id);
+            fields.Add(Place.Field.Name);
+            fields.Add(Place.Field.LatLng);
+            fields.Add(Place.Field.Address);
+
+            Intent intent = new Autocomplete.IntentBuilder(AutocompleteActivityMode.Overlay, fields)
+                .SetCountry("NZ")
+                .Build(this);
+
+            StartActivityForResult(intent, 2);
+        }
+        #endregion
+
+
+        #region MAP AND LOCATION SERVICES
         void InitializePlaces()
         {
             string mapKey = Resources.GetString(Resource.String.mapkey);
@@ -256,7 +273,7 @@ namespace UberCloneRFP
 
         private async void MainMap_CameraIdle(object sender, EventArgs e)
         {
-            if(!takeAddressFromSearch)
+            if (!takeAddressFromSearch)
             {
                 if (addressRequest == 1)
                 {
@@ -340,10 +357,50 @@ namespace UberCloneRFP
                 mainMap.MoveCamera(CameraUpdateFactory.NewLatLngZoom(myposition, 17));
             }
         }
+        #endregion
+
+
+        #region TRIP CONFIGURATION
+        void TripLocationsSet()
+        {
+            favouritePlacesButton.Visibility = ViewStates.Invisible;
+            locationSetButton.Visibility = ViewStates.Visible;
+        }
+
+        void TripDrawnOnMap()
+        {
+            layoutDestination.Clickable = false;
+            layoutPickup.Clickable = false;
+            pickupRadio.Enabled = false;
+            destinationRadio.Enabled = false;
+            takeAddressFromSearch = true;
+            centerMarker.Visibility = ViewStates.Invisible;
+        }
+        #endregion
+
+
+        #region OVERRIDE METHODS
+        protected override void OnCreate(Bundle savedInstanceState)
+        {
+            base.OnCreate(savedInstanceState);
+            Xamarin.Essentials.Platform.Init(this, savedInstanceState);
+            // Set our view from the "main" layout resource
+            SetContentView(Resource.Layout.activity_main);
+            ConnectControl();
+
+            SupportMapFragment mapFragment = (SupportMapFragment)SupportFragmentManager.FindFragmentById(Resource.Id.map);
+            mapFragment.GetMapAsync(this);
+
+            CheckLocationPermission();
+            CreateLocationRequest();
+            GetMyLocation();
+            StartLocationUpdates();
+            InitializePlaces();
+        }
 
         public override void OnRequestPermissionsResult(int requestCode, string[] permissions, [GeneratedEnum] Permission[] grantResults)
         {
-            if(grantResults.Length > 1)
+            if (grantResults.Length > 1)
             {
                 return;
             }
@@ -356,76 +413,6 @@ namespace UberCloneRFP
             {
                 Toast.MakeText(this, "Permission was denied", ToastLength.Short).Show();
             }
-        }
-
-        void PickupRadio_Click(object sender, System.EventArgs e)
-        {
-            addressRequest = 1;
-            pickupRadio.Checked = true;
-            destinationRadio.Checked = false;
-            takeAddressFromSearch = false;
-            centerMarker.SetColorFilter(Color.DarkGreen);
-        }
-
-        void DestinationRadio_Click(object sender, System.EventArgs e)
-        {
-            addressRequest = 2;
-            destinationRadio.Checked = true;
-            pickupRadio.Checked = false;
-            takeAddressFromSearch = false;
-            centerMarker.SetColorFilter(Color.Red);
-        }
-
-        void LayoutPickup_Click(object sender, System.EventArgs e)
-        {
-            //AutocompleteFilter filter = new AutocompleteFilter.Builder()
-            //    .SetCountry("NZ")
-            //    .Build();
-
-            //Intent intent = new PlaceAutoComplete.IntentBuilder(PlaceAutoComplete.ModeOverlay)
-            //    .SetFilter(filter)
-            //    .Build(this);
-
-            //StartActivityForResult(intent, 1);
-
-
-            List<Place.Field> fields = new List<Place.Field>();
-            fields.Add(Place.Field.Id);
-            fields.Add(Place.Field.Name);
-            fields.Add(Place.Field.LatLng);
-            fields.Add(Place.Field.Address);
-
-            Intent intent = new Autocomplete.IntentBuilder(AutocompleteActivityMode.Overlay, fields)
-                .SetCountry("NZ")
-                .Build(this);
-
-            StartActivityForResult(intent, 1);
-        }
-
-        void LayoutDestination_Click(object sender, System.EventArgs e)
-        {
-            //AutocompleteFilter filter = new AutocompleteFilter.Builder()
-            //    .SetCountry("NZ")
-            //    .Build();
-
-            //Intent intent = new PlaceAutoComplete.IntentBuilder(PlaceAutoComplete.ModeOverlay)
-            //    .SetFilter(filter)
-            //    .Build(this);
-
-            //StartActivityForResult(intent, 2);
-
-
-            List<Place.Field> fields = new List<Place.Field>();
-            fields.Add(Place.Field.Id);
-            fields.Add(Place.Field.Name);
-            fields.Add(Place.Field.LatLng);
-            fields.Add(Place.Field.Address);
-
-            Intent intent = new Autocomplete.IntentBuilder(AutocompleteActivityMode.Overlay, fields)
-                .SetCountry("NZ")
-                .Build(this);
-
-            StartActivityForResult(intent, 2);
         }
 
         protected override void OnActivityResult(int requestCode, [GeneratedEnum] Result resultCode, Intent data)
@@ -469,5 +456,6 @@ namespace UberCloneRFP
                 }
             }
         }
+        #endregion
     }
 }
