@@ -17,6 +17,8 @@ namespace UberCloneRFP.Helpers
 {
     public static class AppDataHelper
     {
+        static ISharedPreferences preferences = Application.Context.GetSharedPreferences("userinfo", FileCreationMode.Private);
+
         public static FirebaseDatabase GetDatabase()
         {
             var app = FirebaseApp.InitializeApp(Application.Context);
@@ -92,6 +94,24 @@ namespace UberCloneRFP.Helpers
             }
 
             return mUser;
+        }
+
+        public static string GetFullName()
+        {
+            string fullname = preferences.GetString("fullname", "");
+            return fullname;
+        }
+
+        public static string GetEmail()
+        {
+            string email = preferences.GetString("email", "");
+            return email;
+        }
+
+        public static string GetPhone()
+        {
+            string phone = preferences.GetString("phone", "");
+            return phone;
         }
     }
 }

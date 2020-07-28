@@ -22,13 +22,17 @@ using Java.IO;
 using Java.Lang.Reflect;
 using Android.Content;
 using Android.Support.Design.Widget;
+using UberCloneRFP.EventListeners;
 
 namespace UberCloneRFP
 {
     [Activity(Label = "@string/app_name", Theme = "@style/UberTheme", MainLauncher = false)]
     public class MainActivity : AppCompatActivity, IOnMapReadyCallback
     {
-        FirebaseDatabase database;
+        //Firebase
+        UserProfileEventListener profileEventListener = new UserProfileEventListener();
+
+        //Views
         Android.Support.V7.Widget.Toolbar mainToolbar;
         Android.Support.V4.Widget.DrawerLayout drawerLayout;
 
@@ -396,11 +400,12 @@ namespace UberCloneRFP
             GetMyLocation();
             StartLocationUpdates();
             InitializePlaces();
+            profileEventListener.Create();
         }
 
         public override void OnRequestPermissionsResult(int requestCode, string[] permissions, [GeneratedEnum] Permission[] grantResults)
         {
-            if (grantResults.Length > 1)
+            if (grantResults.Length < 1)
             {
                 return;
             }

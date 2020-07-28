@@ -10,6 +10,8 @@ using Android.Runtime;
 using Android.Support.V7.App;
 using Android.Views;
 using Android.Widget;
+using Firebase.Auth;
+using UberCloneRFP.Helpers;
 
 namespace UberCloneRFP.Activities
 {
@@ -26,7 +28,16 @@ namespace UberCloneRFP.Activities
         protected override void OnResume()
         {
             base.OnResume();
-            StartActivity(typeof(MainActivity));
+            FirebaseUser currentUser = AppDataHelper.GetCurrentUser();
+
+            if (currentUser == null)
+            {
+                StartActivity(typeof(LoginActivity));
+            }
+            else
+            {
+                StartActivity(typeof(MainActivity));
+            }
         }
     }
 }
