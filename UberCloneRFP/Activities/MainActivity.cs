@@ -23,6 +23,7 @@ using Java.Lang.Reflect;
 using Android.Content;
 using Android.Support.Design.Widget;
 using UberCloneRFP.EventListeners;
+using UberCloneRFP.Fragments;
 
 namespace UberCloneRFP
 {
@@ -43,6 +44,7 @@ namespace UberCloneRFP
         //Buttons
         Button favouritePlacesButton;
         Button locationSetButton;
+        Button requestDriverButton;
         RadioButton pickupRadio;
         RadioButton destinationRadio;
 
@@ -81,7 +83,9 @@ namespace UberCloneRFP
         int addressRequest = 1;
         bool takeAddressFromSearch;
 
-        
+        //Fragments
+        RequestDriver requestDriverFragment;
+
         void ConnectControl()
         {
             //DrawerLayout
@@ -102,10 +106,12 @@ namespace UberCloneRFP
             //Buttons
             favouritePlacesButton = (Button)FindViewById(Resource.Id.favouritePlacesButton);
             locationSetButton = (Button)FindViewById(Resource.Id.locationSetButton);
+            requestDriverButton = (Button)FindViewById(Resource.Id.requestDriverButton);
             pickupRadio = (RadioButton)FindViewById(Resource.Id.pickupRadio);
             destinationRadio = (RadioButton)FindViewById(Resource.Id.destinationRadio);
             favouritePlacesButton.Click += FavouritePlacesButton_Click;
             locationSetButton.Click += LocationSetButton_Click;
+            requestDriverButton.Click += RequestDriverButton_Click;
             pickupRadio.Click += PickupRadio_Click;
             destinationRadio.Click += DestinationRadio_Click;
 
@@ -126,6 +132,14 @@ namespace UberCloneRFP
 
 
         #region CLICK EVENT HANDLERS
+        private void RequestDriverButton_Click(object sender, EventArgs e)
+        {
+            requestDriverFragment = new RequestDriver(mapHelper.EstimateFares());
+            requestDriverFragment.Cancelable = false;
+            var trans = SupportFragmentManager.BeginTransaction();
+            requestDriverFragment.Show(trans, "Request");
+        }
+
         async void LocationSetButton_Click(object sender, EventArgs e)
         {
             locationSetButton.Text = "Please wait...";
