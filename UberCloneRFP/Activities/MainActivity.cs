@@ -24,6 +24,7 @@ using Android.Content;
 using Android.Support.Design.Widget;
 using UberCloneRFP.EventListeners;
 using UberCloneRFP.Fragments;
+using UberCloneRFP.DataModels;
 
 namespace UberCloneRFP
 {
@@ -32,6 +33,7 @@ namespace UberCloneRFP
     {
         //Firebase
         UserProfileEventListener profileEventListener = new UserProfileEventListener();
+        CreateRequestEventListener requestListener;
 
         //Views
         Android.Support.V7.Widget.Toolbar mainToolbar;
@@ -78,6 +80,8 @@ namespace UberCloneRFP
         //TripDetails
         LatLng pickupLocationLatLng;
         LatLng destinationLatLng;
+        string pickupAddress;
+        string destinationAddress;
 
         //Flags
         int addressRequest = 1;
@@ -85,6 +89,9 @@ namespace UberCloneRFP
 
         //Fragments
         RequestDriver requestDriverFragment;
+
+        //DataModels
+        NewTripDetails newTripDetails;
 
         void ConnectControl()
         {
@@ -138,6 +145,38 @@ namespace UberCloneRFP
             requestDriverFragment.Cancelable = false;
             var trans = SupportFragmentManager.BeginTransaction();
             requestDriverFragment.Show(trans, "Request");
+            requestDriverFragment.CancelRequest += RequestDriverFragment_CancelRequest;
+
+            newTripDetails = new NewTripDetails();
+            newTripDetails.DestinationAddress = destinationAddress;
+            newTripDetails.PickupAddress = pickupAddress;
+            newTripDetails.DestinationLat = destinationLatLng.Latitude;
+            newTripDetails.DestinationLng = destinationLatLng.Longitude;
+            newTripDetails.DistanceString = mapHelper.distanceString;
+            newTripDetails.DistanceValue = mapHelper.distance;
+            newTripDetails.DurationString = mapHelper.durationString;
+            newTripDetails.DurationValue = mapHelper.duration;
+            newTripDetails.EstimateFare = mapHelper.EstimateFares();
+            newTripDetails.PaymentMethod = "cash";
+            newTripDetails.PickupLat = pickupLocationLatLng.Latitude;
+            newTripDetails.PickupLng = pickupLocationLatLng.Longitude;
+            newTripDetails.TimeStamp = DateTime.Now;
+
+            requestListener = new CreateRequestEventListener(newTripDetails);
+            requestListener.CreateRequest();
+
+        }
+
+        private void RequestDriverFragment_CancelRequest(object sender, EventArgs e)
+        {
+            //User cancels request before driver accepts it
+            if(requestDriverFragment != null && requestListener != null)
+            {
+                requestListener.CancelRequest();
+                requestListener = null;
+                requestDriverFragment.Dismiss();
+                requestDriverFragment = null;
+            }
         }
 
         async void LocationSetButton_Click(object sender, EventArgs e)
@@ -296,12 +335,14 @@ namespace UberCloneRFP
                 if (addressRequest == 1)
                 {
                     pickupLocationLatLng = mainMap.CameraPosition.Target;
-                    pickupLocationText.Text = await mapHelper.FindCoordinateAddress(pickupLocationLatLng);
+                    pickupAddress = await mapHelper.FindCoordinateAddress(pickupLocationLatLng);
+                    pickupLocationText.Text = pickupAddress;
                 }
                 else if (addressRequest == 2)
                 {
                     destinationLatLng = mainMap.CameraPosition.Target;
-                    destinationText.Text = await mapHelper.FindCoordinateAddress(destinationLatLng);
+                    destinationAddress = await mapHelper.FindCoordinateAddress(destinationLatLng);
+                    destinationText.Text = destinationAddress;
                     TripLocationsSet();
                 }
             }
@@ -449,7 +490,7 @@ namespace UberCloneRFP
 
                     var place = Autocomplete.GetPlaceFromIntent(data);
                     pickupLocationText.Text = place.Name.ToString();
-                    //pickupAddress = place.Name.ToString();
+                    pickupAddress = place.Name.ToString();
                     pickupLocationLatLng = place.LatLng;
                     mainMap.AnimateCamera(CameraUpdateFactory.NewLatLngZoom(place.LatLng, 15));
                     centerMarker.SetColorFilter(Color.DarkGreen);
@@ -467,7 +508,7 @@ namespace UberCloneRFP
 
                     var place = Autocomplete.GetPlaceFromIntent(data);
                     destinationText.Text = place.Name.ToString();
-                    //destinationAddress = place.Name.ToString();
+                    destinationAddress = place.Name.ToString();
                     destinationLatLng = place.LatLng;
                     mainMap.AnimateCamera(CameraUpdateFactory.NewLatLngZoom(place.LatLng, 15));
                     centerMarker.SetColorFilter(Color.Red);

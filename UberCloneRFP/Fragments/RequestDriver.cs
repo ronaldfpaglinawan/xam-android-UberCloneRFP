@@ -15,6 +15,7 @@ namespace UberCloneRFP.Fragments
 {
     public class RequestDriver : Android.Support.V4.App.DialogFragment
     {
+        public event EventHandler CancelRequest;
         double mfares;
         Button cancelRequestButton;
         TextView faresText;
@@ -31,9 +32,15 @@ namespace UberCloneRFP.Fragments
             // Use this to return your custom view for this Fragment
             View view = inflater.Inflate(Resource.Layout.request_driver, container, false);
             cancelRequestButton = (Button)view.FindViewById(Resource.Id.cancelrequestButton);
+            cancelRequestButton.Click += CancelRequestButton_Click;
             faresText = (TextView)view.FindViewById(Resource.Id.faresText);
             faresText.Text = "$" + mfares.ToString();
             return view;
+        }
+
+        private void CancelRequestButton_Click(object sender, EventArgs e)
+        {
+            CancelRequest?.Invoke(this, new EventArgs());
         }
 
         public RequestDriver(double fares)
