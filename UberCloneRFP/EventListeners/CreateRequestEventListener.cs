@@ -18,7 +18,7 @@ using UberCloneRFP.Helpers;
 
 namespace UberCloneRFP.EventListeners
 {
-    class CreateRequestEventListener : Java.Lang.Object, IValueEventListener
+    public class CreateRequestEventListener : Java.Lang.Object, IValueEventListener
     {
         NewTripDetails newTrip;
         FirebaseDatabase database;
@@ -47,8 +47,8 @@ namespace UberCloneRFP.EventListeners
             location.Put("longitude", newTrip.PickupLng);
 
             HashMap destination = new HashMap();
-            destination.Put("latitude", newTrip.PickupLat);
-            destination.Put("longitude", newTrip.PickupLng);
+            destination.Put("latitude", newTrip.DestinationLat);
+            destination.Put("longitude", newTrip.DestinationLng);
 
             HashMap myTrip = new HashMap();
 
